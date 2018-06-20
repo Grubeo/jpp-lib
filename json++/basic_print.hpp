@@ -1,4 +1,7 @@
+#pragma once
+
 #include "value_type.hpp"
+#include <ostream>
 
 namespace jpp
 {
