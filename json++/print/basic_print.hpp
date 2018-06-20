@@ -1,6 +1,6 @@
 #pragma once
 
-#include "value_type.hpp"
+#include "../value_type.hpp"
 #include <ostream>
 
 namespace jpp
@@ -12,5 +12,5 @@ namespace jpp
     std::ostream& print_array(std::ostream&, const array_type&);
     std::ostream& print_object(std::ostream&, const object_type&);
 
-    std::ostream& print_json(std::ostream&, const json&);
+    std::ostream& print(std::ostream&, const json&);
 }
