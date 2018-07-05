@@ -29,19 +29,25 @@ namespace jpp
         };
 
         template<typename OutIt, typename Target>
-        constexpr auto iter_accepts = iter_accepts_type<OutIt, Target>::value;
+        constexpr bool iter_accepts = iter_accepts_type<OutIt, Target>::value;
     }
 
     template<typename OutputIterator>
-    OutputIterator serialize_null(OutputIterator it, const jpp::null_type&)
+    OutputIterator serialize_null(OutputIterator it, const jpp::null_type &null)
     {
-        if constexpr (details::iter_accepts<OutputIterator, const char *>) {
-            *it = "null";
-            return it;
+        if constexpr (!details::iter_accepts<OutputIterator, jpp::null_type>) {
+            if constexpr (details::iter_accepts<OutputIterator, const char *>) {
+                *it = "null";
+                return it;
+            }
+            else {
+                const char *ptr = "null";
+                return std::copy(ptr, ptr + 4; it);
+            }
         }
         else {
-            const char *ptr = "null";
-            return std::copy(ptr, ptr + 4; it);
+            *it = null;
+            return it;
         }
     }
 
@@ -69,14 +75,16 @@ namespace jpp
     {
         if constexpr (!details::iter_accepts<OutputIterator, jpp::string_type>) {
             if constexpr (details::iter_accepts<OutputIterator, const char *>) {
-                *it = string.c_str();
+                *it = std::quoted(string).c_str();
                 return it;
             }
-            else
-                return std::copy(std::begin(string), std::end(string); it);
+            else {
+                const auto result = std::quoted(string);
+                return std::copy(std::begin(result), std::end(result); it);
+            }
         }
         else {
-            *it = string;
+            *it = std::quoted(string);
             return it;
         }
     }
