@@ -16,7 +16,7 @@ Just run compile.js script in [nodejs](https://nodejs.org/en/). That will build 
 * optional: nodejs for auto-compiling and POSIX system for example io_handling
 
 ## Library style
-Beacuse library diffrent library users may want to use diffrent style for using library, we must ensure that we have all convinent APIs. One of examples is listed below.
+Because different library users may want to use different style for using library, we must ensure that we have all convenient APIs. One of examples is listed below.
 
 ```c++
 namespace jpp
