@@ -8,7 +8,7 @@
 
 namespace jpp
 {
-    class json;
+    struct json;
 
     using null_type = decltype(nullptr);
     using boolean_type = bool;
@@ -23,7 +23,7 @@ namespace jpp
 
     constexpr auto null = null_type{};
 
-    class json
+    struct json
     {
         value_type value;
     public:

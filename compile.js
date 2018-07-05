@@ -57,7 +57,7 @@ const processDirectory = dirname => {
 }
 
 (function(){
-  const modules = ['io_handling', 'json++']
+  const modules = ['io_handling', 'json++', 'json++/print']
     .map(x => `./${x}/`)
     .map(processDirectory)
     .flatten()

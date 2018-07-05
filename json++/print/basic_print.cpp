@@ -1,11 +1,10 @@
 #include "basic_print.hpp"
-#include "value_type.hpp"
 
 #include <iterator>
 #include <iomanip>
 #include <numeric>
 
-#include "functional/compound.hpp"
+#include "../functional/compound.hpp"
 
 std::ostream& jpp::print_json(std::ostream &stream, const jpp::json &json_value)
 {

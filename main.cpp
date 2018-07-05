@@ -6,7 +6,6 @@
 #include "json++/value_type.hpp"
 #include "json++/print/basic_print.hpp"
 
-#define ERROR(MSG) ("\e[1;91m[ERROR]" MSG "\e[0m\n")
 
 char* getCmdOption(char **begin, char **end, const char *option)
 {
@@ -27,12 +26,5 @@ int main()
     };
 
     // using basic print that produce 'minified' json
-    jpp::print(std::cout, json) << '\n';
-
-    /*
-    if (char *path = getCmdOption(argv, argv + argc, "-p"); path != nullptr) {
-        std::cout << "Path: " << path << '\n';
-        std::cerr << ERROR("This functionality hasn't been implemented yet.");
-        return EXIT_FAILURE;
-    }*/
+    jpp::print_json(std::cout, json) << '\n';
 }
