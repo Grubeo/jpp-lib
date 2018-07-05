@@ -30,11 +30,35 @@ namespace jpp
 
         template<typename OutIt, typename Target>
         constexpr bool iter_accepts = iter_accepts_type<OutIt, Target>::value;
+
+        template< typename,  typename = std::void_t<> >
+        struct has_iterator_traits : std::false_type
+        {
+        };
+        
+        template<typename T>
+        struct has_iterator_traits
+            <T, std::void_t<typename std::iterator_traits<T>::iterator_category>> 
+            : std::true_type
+        {
+        };
+
+        template<typename Iterator>
+        constexpr auto is_output_iterator = 
+            std::is_same_v<typename std::iterator_traits<Iterator>::iterator_category, 
+                std::output_iterator_tag>;
+
+        template<typename Iterator>
+        constexpr auto has_iter_traits = has_iterator_traits<Iterator>::value;
     }
 
     template<typename OutputIterator>
     OutputIterator serialize_null(OutputIterator it, const jpp::null_type &null)
     {
+        if constexpr (details::has_iter_traits<OutputIterator>) {
+            static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
+        }
+
         if constexpr (!details::iter_accepts<OutputIterator, jpp::null_type>) {
             if constexpr (details::iter_accepts<OutputIterator, const char *>) {
                 *it = "null";
@@ -54,6 +78,10 @@ namespace jpp
     template<typename OutputIterator>
     OutputIterator serialize_boolean(OutputIterator it, const jpp::boolean_type &boolean)
     {
+        if constexpr (details::has_iter_traits<OutputIterator>) {
+            static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
+        }
+
         if constexpr (!details::iter_accepts<OutputIterator, bool>) {
             if constexpr (details::iter_accepts<OutputIterator, const char *>) {
                 *it = booolean ? "true" : "false";
@@ -73,6 +101,10 @@ namespace jpp
     template<typename OutputIterator>
     OutputIterator serialize_string(OutputIterator it, const jpp::string_type &string)
     {
+        if constexpr (details::has_iter_traits<OutputIterator>) {
+            static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
+        }
+
         if constexpr (!details::iter_accepts<OutputIterator, jpp::string_type>) {
             if constexpr (details::iter_accepts<OutputIterator, const char *>) {
                 *it = std::quoted(string).c_str();
@@ -92,6 +124,10 @@ namespace jpp
     template<typename OutputIterator>
     OutputIterator serialize(OutputIterator it, const jpp::json &json)
     {
+        if constexpr (details::has_iter_traits<OutputIterator>) {
+            static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
+        }
+
         return std::visit(fun::compound(
             [&it] (const null_type &v) { return serialize_null(it, v); },
             [&it] (const boolean_type &v) { return serialize_boolean(it, v); },
