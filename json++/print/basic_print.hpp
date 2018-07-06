@@ -124,8 +124,7 @@ namespace jpp
         const auto end = std::prev(std::end(array));
 
         constexpr const auto chars = [] {
-            if constexpr (details::iter_accepts<OutputIterator, char>)
-                return std::tuple { '[', ',', ']' };
+            if constexpr (details::iter_accepts<OutputIterator, char>) return std::tuple { '[', ',', ']' };
             else return std::tuple { "[", ",", "]" };
         }();
         
@@ -146,9 +145,26 @@ namespace jpp
     }
 
     template<typename OutputIterator>
-    OutputIterator serialize_object(OutputIterator it, [[maybe_unused]] const jpp::object_type &json)
+    OutputIterator serialize_object(OutputIterator output, [[maybe_unused]] const jpp::object_type &object)
     {
-        return it;
+        const auto end = std::prev(std::end(object));
+
+        constexpr const auto chars = [] {
+            if constexpr (details::iter_accepts<OutputIterator, char>) return std::tuple { '{', ',', ':', '}' };
+            else return std::tuple { "{", ",", ":", "}" };
+        }();
+
+        *output = std::get<0>(chars);
+
+        for (auto it = std::begin(object); it != end; ++it) {
+            *jpp::serialize_string(output, it->first) = std::get<2>(chars);
+            *jpp::serialize(output, it->second) = std::get<1>(chars);
+        }
+
+        *jpp::serialize_string(output, end->first) = std::get<2>(chars);
+        *jpp::serialize(output, end->second) = std::get<3>(chars);
+
+        return output;
     }
 
     template<typename OutputIterator>

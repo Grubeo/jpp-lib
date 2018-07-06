@@ -3,6 +3,8 @@
 #include "../json++/value_type.hpp"
 #include "../json++/print/basic_print.hpp"
 
+#include <numeric>
+
 BOOST_AUTO_TEST_CASE(serialize_null_to_vector)
 {
     jpp::null_type nullvalue = jpp::null;
@@ -83,4 +85,21 @@ BOOST_AUTO_TEST_CASE(serialize_array_to_vector)
     jpp::serialize_array(std::back_inserter(target), array);
     const auto joined = std::accumulate(std::begin(target), std::end(target), std::string{}, std::plus<>{});
     BOOST_REQUIRE(joined == "[\"Hello\",true,\"World\"]");
+}
+
+BOOST_AUTO_TEST_CASE(serialize_object_to_string)
+{
+    std::string target;
+    jpp::object_type object { { jpp::string_type{ "Hello" }, jpp::boolean_type{true} } };
+    jpp::serialize_object(std::back_inserter(target), object);
+    BOOST_REQUIRE(target == "{\"Hello\":true}");
+}
+
+BOOST_AUTO_TEST_CASE(serialize_object_to_vector)
+{
+    std::vector<std::string> target;
+    jpp::object_type object { { jpp::string_type{ "Hello" }, jpp::boolean_type{true} } };
+    jpp::serialize_object(std::back_inserter(target), object);
+    const auto joined = std::accumulate(std::begin(target), std::end(target), std::string{}, std::plus<>{});
+    BOOST_REQUIRE(joined == "{\"Hello\":true}");
 }
