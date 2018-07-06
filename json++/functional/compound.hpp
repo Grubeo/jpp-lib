@@ -6,7 +6,7 @@
 namespace fun
 {
     template<class... Ts> struct compound : Ts... { 
-        compound(Ts && ... t) : Ts{t}... {}
+        constexpr compound(Ts && ... t) : Ts{t}... {}
 
         using Ts::operator()...; 
     };

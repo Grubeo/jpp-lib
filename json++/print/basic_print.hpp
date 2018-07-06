@@ -115,9 +115,6 @@ namespace jpp
         }
     }
 
-    #define CEXPR_IF(boolean, first, second) \
-        ([]{ if constexpr ((boolean)) return (first); else return (second); })();
-
     template<typename OutputIterator>
     OutputIterator serialize_array(OutputIterator it, const jpp::array_type &array)
     {
@@ -145,7 +142,7 @@ namespace jpp
     }
 
     template<typename OutputIterator>
-    OutputIterator serialize_object(OutputIterator output, [[maybe_unused]] const jpp::object_type &object)
+    OutputIterator serialize_object(OutputIterator output, const jpp::object_type &object)
     {
         const auto end = std::prev(std::end(object));
 
@@ -153,7 +150,7 @@ namespace jpp
             if constexpr (details::iter_accepts<OutputIterator, char>) return std::tuple { '{', ',', ':', '}' };
             else return std::tuple { "{", ",", ":", "}" };
         }();
-
+        
         *output = std::get<0>(chars);
 
         for (auto it = std::begin(object); it != end; ++it) {
@@ -173,14 +170,16 @@ namespace jpp
         if constexpr (details::has_iter_traits<OutputIterator>)
             static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
 
-        std::visit(fun::compound(
+        const auto visitor = fun::compound(
             [&it] (const jpp::null_type &v) { jpp::serialize_null(it, v); },
             [&it] (const jpp::boolean_type &v) { jpp::serialize_boolean(it, v); },
             [&it] (const jpp::number_type &v) { jpp::serialize_number(it, v); },
             [&it] (const jpp::string_type &v) { jpp::serialize_string(it, v); },
             [&it] (const jpp::array_type &v) { jpp::serialize_array(it, v); },
             [&it] (const jpp::object_type &v) { jpp::serialize_object(it, v); }
-        ), json.value);
+        );
+
+        std::visit(visitor, json.value);
 
         return it;
     }
