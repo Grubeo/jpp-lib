@@ -8,12 +8,12 @@ This library is **under development** so coding style, file structure and everyt
 * fast runtime usage
 * (distant future) constexpr modeling of JSON structure for quick loading of application settings
 
-## Compilation
-Just run compile.js script in [nodejs](https://nodejs.org/en/). That will build all modules to *.o files and an current development example about this library.
+## Running unit tests
+Just run make_tests.js script in [nodejs](https://nodejs.org/en/) and then jpp-test executable. That will build all modules to *.o files and run unit tests.
 
 ## Requiments
-* g++ supporting C++17 (std::variant for example)
-* optional: nodejs for auto-compiling and POSIX system for example io_handling
+* c++ compiler supporting C++17 (std::variant for example)
+* optional: nodejs and Boost.Test for unit testing
 
 ## Library style
 Because different library users may want to use different style for using library, we must ensure that we have all convenient APIs. One of examples is listed below.
