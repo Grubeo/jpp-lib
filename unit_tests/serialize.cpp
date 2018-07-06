@@ -106,4 +106,20 @@ BOOST_AUTO_TEST_CASE(ObjectToVector)
     BOOST_REQUIRE(joined == "{\"Hello\":true,\"World\":null}");
 }
 
+BOOST_AUTO_TEST_CASE(NumberToString)
+{
+    std::string target;
+    jpp::number_type number { 3.14 };
+    jpp::serialize_number(std::back_inserter(target), number);
+    BOOST_REQUIRE(target == "3.14");
+}
+
+BOOST_AUTO_TEST_CASE(NumberToVector)
+{
+    std::vector<std::string> target;
+    jpp::number_type number { -3.14 };
+    jpp::serialize_number(std::back_inserter(target), number);
+    BOOST_REQUIRE(target.front() == "-3.14");
+}
+
 BOOST_AUTO_TEST_SUITE_END()

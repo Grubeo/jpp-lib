@@ -139,8 +139,23 @@ namespace jpp
     }
     
     template<typename OutputIterator>
-    OutputIterator serialize_number(OutputIterator it, [[maybe_unused]] const jpp::number_type &json)
+    OutputIterator serialize_number(OutputIterator it,  const jpp::number_type &num)
     {
+        if constexpr (details::has_iter_traits<OutputIterator>)
+            static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
+
+        std::ostringstream oss;
+        oss << num;
+
+        if constexpr (details::iter_accepts<OutputIterator, std::string>) {
+            *it = std::move(oss).str();
+            return it;
+        }
+        else {
+            const std::string result = std::move(oss).str();
+            return std::copy(std::begin(result), std::end(result), it);
+        }
+
         return it;
     }
 
