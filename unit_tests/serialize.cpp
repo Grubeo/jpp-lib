@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
-#include "../json++/value_type.hpp"
-#include "../json++/print/basic_print.hpp"
+#include <json++/value_type.hpp>
+#include <json++/conversions/serialize.hpp>
 
 #include <numeric>
 

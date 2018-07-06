@@ -56,10 +56,10 @@ const processDirectory = dirname => {
 }
 
 (function(){
-  const modules = ['io_handling', 'json++', 'json++/print']
+  const modules = ['io_handling', 'json++', 'json++/conversions']
     .map(x => `./${x}/`)
     .map(processDirectory)
     .flatten()
 
-  compile(modules.join(' ') + ' test.cpp', 'jpp-test', '-Wl,-Bdynamic -L/usr/local/lib -lboost_unit_test_framework')
+  compile(modules.join(' ') + ' test.cpp', 'jpp-test', '-Wl,-Bdynamic -I. -L/usr/local/lib -lboost_unit_test_framework')
 })()

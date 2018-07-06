@@ -2,24 +2,16 @@
 
 #include "../value_type.hpp"
 #include "../functional/compound.hpp"
-#include <ostream>
-#include <iomanip>
+
+#include <type_traits>
 #include <iterator>
 #include <string>
 #include <sstream>
 #include <tuple>
+#include <iomanip>
 
-namespace jpp
+namespace jpp 
 {
-    std::ostream& print_null(std::ostream&, const null_type&);
-    std::ostream& print_boolean(std::ostream&, const boolean_type&);
-    std::ostream& print_number(std::ostream&, const number_type&);
-    std::ostream& print_string(std::ostream&, const string_type&);
-    std::ostream& print_array(std::ostream&, const array_type&);
-    std::ostream& print_object(std::ostream&, const object_type&);
-
-    std::ostream& print_json(std::ostream&, const json&);
-
     namespace details
     {
         template< typename, typename,  typename = std::void_t<> >
