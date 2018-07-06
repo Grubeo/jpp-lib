@@ -31,8 +31,7 @@ function compile(files, result, additional = '-c') {
 		}
 	}
     
-	console.log(result)
-	execSync(`g++ -std=c++1z -Wall -Wextra -pedantic ${additional} ${files} -o ${result}`, callback)
+	execSync(`g++ -std=c++1z -Wall -Wextra -pedantic ${files} -o ${result} ${additional}`, callback)
 }
 
 const compareDate = (lhs, array) =>
@@ -62,5 +61,5 @@ const processDirectory = dirname => {
     .map(processDirectory)
     .flatten()
 
-  compile(modules.join(' ') + ' main.cpp', 'bin/jpp-test', '')
+  compile(modules.join(' ') + ' test.cpp', 'jpp-test', '-Wl,-Bdynamic -L/usr/local/lib -lboost_unit_test_framework')
 })()

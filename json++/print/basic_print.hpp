@@ -1,7 +1,12 @@
 #pragma once
 
 #include "../value_type.hpp"
+#include "../functional/compound.hpp"
 #include <ostream>
+#include <iomanip>
+#include <iterator>
+#include <string>
+#include <sstream>
 
 namespace jpp
 {
@@ -53,70 +58,74 @@ namespace jpp
     }
 
     template<typename OutputIterator>
-    OutputIterator serialize_null(OutputIterator it, const jpp::null_type &null)
+    OutputIterator serialize_null(OutputIterator it, const jpp::null_type &)
     {
-        if constexpr (details::has_iter_traits<OutputIterator>) {
+        if constexpr (details::has_iter_traits<OutputIterator>)
             static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
-        }
 
-        if constexpr (!details::iter_accepts<OutputIterator, jpp::null_type>) {
-            if constexpr (details::iter_accepts<OutputIterator, const char *>) {
-                *it = "null";
-                return it;
-            }
-            else {
-                const char *ptr = "null";
-                return std::copy(ptr, ptr + 4; it);
-            }
+
+        if constexpr (details::iter_accepts<OutputIterator, const char *>) {
+            *it = "null";
+            return it;
         }
         else {
-            *it = null;
-            return it;
+            const char *ptr = "null";
+            return std::copy(ptr, ptr + 4, it);
         }
     }
 
     template<typename OutputIterator>
     OutputIterator serialize_boolean(OutputIterator it, const jpp::boolean_type &boolean)
     {
-        if constexpr (details::has_iter_traits<OutputIterator>) {
+        if constexpr (details::has_iter_traits<OutputIterator>)
             static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
-        }
 
-        if constexpr (!details::iter_accepts<OutputIterator, bool>) {
-            if constexpr (details::iter_accepts<OutputIterator, const char *>) {
-                *it = booolean ? "true" : "false";
-                return it;
-            }
-            else {
-                const char *ptr = boolean ? "true" : "false";
-                return std::copy(ptr, ptr + (boolean ? 4 : 5); it);
-            }
+
+        if constexpr (details::iter_accepts<OutputIterator, const char *>) {
+            *it = boolean ? "true" : "false";
+            return it;
         }
         else {
-            *it = static_cast<bool>(boolean);
-            return boolean;
+            const char *ptr = boolean ? "true" : "false";
+            return std::copy(ptr, ptr + (boolean ? 4 : 5), it);
         }
     }
 
+    /*
     template<typename OutputIterator>
     OutputIterator serialize_string(OutputIterator it, const jpp::string_type &string)
     {
-        if constexpr (details::has_iter_traits<OutputIterator>) {
+        if constexpr (details::has_iter_traits<OutputIterator>)
             static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
-        }
 
-        if constexpr (!details::iter_accepts<OutputIterator, jpp::string_type>) {
+        if constexpr (!details::iter_accepts<OutputIterator, std::string>) {
             if constexpr (details::iter_accepts<OutputIterator, const char *>) {
                 *it = std::quoted(string).c_str();
                 return it;
             }
             else {
-                const auto result = std::quoted(string);
-                return std::copy(std::begin(result), std::end(result); it);
+                const std::string result = std::quoted(string);
+                return std::copy(std::begin(result), std::end(result), it);
             }
         }
         else {
-            *it = std::quoted(string);
+            *it = static_cast<std::string>(std::quoted(string));
+            return it;
+        }
+    }
+    */
+
+    template<typename OutputIterator>
+    OutputIterator serialize_number(OutputIterator it, const jpp::number_type &number)
+    {
+        if constexpr (details::has_iter_traits<OutputIterator>) 
+            static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
+        
+        if constexpr (!details::iter_accepts<OutputIterator, jpp::number_type>) {
+            // TODO
+        }
+        else {
+            *it = number;
             return it;
         }
     }
@@ -124,9 +133,8 @@ namespace jpp
     template<typename OutputIterator>
     OutputIterator serialize(OutputIterator it, const jpp::json &json)
     {
-        if constexpr (details::has_iter_traits<OutputIterator>) {
+        if constexpr (details::has_iter_traits<OutputIterator>)
             static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
-        }
 
         return std::visit(fun::compound(
             [&it] (const null_type &v) { return serialize_null(it, v); },
@@ -135,6 +143,6 @@ namespace jpp
             [&it] (const string_type &v) { return serialize_string(it, v); },
             [&it] (const array_type &v) { return serialize_array(it, v); },
             [&it] (const object_type &v) { return serialize_object(it, v); }
-        ), json_value.value);
+        ), json.value);
     }
 }
