@@ -58,6 +58,9 @@ namespace jpp
     }
 
     template<typename OutputIterator>
+    OutputIterator serialize(OutputIterator it, const jpp::json &json);
+
+    template<typename OutputIterator>
     OutputIterator serialize_null(OutputIterator it, const jpp::null_type &)
     {
         if constexpr (details::has_iter_traits<OutputIterator>)
@@ -91,43 +94,63 @@ namespace jpp
         }
     }
 
-    /*
+    
     template<typename OutputIterator>
-    OutputIterator serialize_string(OutputIterator it, const jpp::string_type &string)
+    OutputIterator serialize_string(OutputIterator it, const jpp::string_type &str)
     {
         if constexpr (details::has_iter_traits<OutputIterator>)
             static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
 
-        if constexpr (!details::iter_accepts<OutputIterator, std::string>) {
-            if constexpr (details::iter_accepts<OutputIterator, const char *>) {
-                *it = std::quoted(string).c_str();
-                return it;
-            }
-            else {
-                const std::string result = std::quoted(string);
-                return std::copy(std::begin(result), std::end(result), it);
-            }
+        std::ostringstream oss;
+        oss << std::quoted(str);
+
+        if constexpr (details::iter_accepts<OutputIterator, std::string>) {
+            *it = std::move(oss).str();
+            return it;
         }
         else {
-            *it = static_cast<std::string>(std::quoted(string));
-            return it;
+            const std::string result = std::move(oss).str();
+            return std::copy(std::begin(result), std::end(result), it);
         }
     }
-    */
 
     template<typename OutputIterator>
-    OutputIterator serialize_number(OutputIterator it, const jpp::number_type &number)
+    OutputIterator serialize_array(OutputIterator it, const jpp::array_type &array)
     {
-        if constexpr (details::has_iter_traits<OutputIterator>) 
-            static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
+        if constexpr (details::iter_accepts<OutputIterator, char>)
+            *it = '[';
         
-        if constexpr (!details::iter_accepts<OutputIterator, jpp::number_type>) {
-            // TODO
-        }
-        else {
-            *it = number;
-            return it;
-        }
+        else
+            *it = "[";
+
+        const auto end = std::prev(std::end(array));
+
+        std::for_each(std::begin(array), end, [&it](auto &e) { 
+            if constexpr (details::iter_accepts<OutputIterator, char>)
+                *jpp::serialize(it, e) = ',';
+            else
+                *jpp::serialize(it, e) = ",";
+        });
+
+        if constexpr (details::iter_accepts<OutputIterator, char>)
+            *jpp::serialize(it, *end) = ']';
+        else
+            *jpp::serialize(it, *end) = "]";
+
+
+        return it;
+    }
+    
+    template<typename OutputIterator>
+    OutputIterator serialize_number(OutputIterator it, [[maybe_unused]] const jpp::number_type &json)
+    {
+        return it;
+    }
+
+    template<typename OutputIterator>
+    OutputIterator serialize_object(OutputIterator it, [[maybe_unused]] const jpp::object_type &json)
+    {
+        return it;
     }
 
     template<typename OutputIterator>
@@ -136,13 +159,15 @@ namespace jpp
         if constexpr (details::has_iter_traits<OutputIterator>)
             static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
 
-        return std::visit(fun::compound(
-            [&it] (const null_type &v) { return serialize_null(it, v); },
-            [&it] (const boolean_type &v) { return serialize_boolean(it, v); },
-            [&it] (const number_type &v) { return serialize_number(it, v); },
-            [&it] (const string_type &v) { return serialize_string(it, v); },
-            [&it] (const array_type &v) { return serialize_array(it, v); },
-            [&it] (const object_type &v) { return serialize_object(it, v); }
+        std::visit(fun::compound(
+            [&it] (const jpp::null_type &v) { jpp::serialize_null(it, v); },
+            [&it] (const jpp::boolean_type &v) { jpp::serialize_boolean(it, v); },
+            [&it] (const jpp::number_type &v) { jpp::serialize_number(it, v); },
+            [&it] (const jpp::string_type &v) { jpp::serialize_string(it, v); },
+            [&it] (const jpp::array_type &v) { jpp::serialize_array(it, v); },
+            [&it] (const jpp::object_type &v) { jpp::serialize_object(it, v); }
         ), json.value);
+
+        return it;
     }
 }
