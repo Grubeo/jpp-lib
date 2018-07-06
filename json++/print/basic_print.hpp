@@ -7,6 +7,7 @@
 #include <iterator>
 #include <string>
 #include <sstream>
+#include <tuple>
 
 namespace jpp
 {
@@ -114,29 +115,26 @@ namespace jpp
         }
     }
 
+    #define CEXPR_IF(boolean, first, second) \
+        ([]{ if constexpr ((boolean)) return (first); else return (second); })();
+
     template<typename OutputIterator>
     OutputIterator serialize_array(OutputIterator it, const jpp::array_type &array)
     {
-        if constexpr (details::iter_accepts<OutputIterator, char>)
-            *it = '[';
-        
-        else
-            *it = "[";
-
         const auto end = std::prev(std::end(array));
 
-        std::for_each(std::begin(array), end, [&it](auto &e) { 
+        constexpr const auto chars = [] {
             if constexpr (details::iter_accepts<OutputIterator, char>)
-                *jpp::serialize(it, e) = ',';
-            else
-                *jpp::serialize(it, e) = ",";
-        });
+                return std::tuple { '[', ',', ']' };
+            else return std::tuple { "[", ",", "]" };
+        }();
+        
+        *it = std::get<0>(chars);
 
-        if constexpr (details::iter_accepts<OutputIterator, char>)
-            *jpp::serialize(it, *end) = ']';
-        else
-            *jpp::serialize(it, *end) = "]";
+        std::for_each(std::begin(array), end, [&it, separator = std::get<1>(chars)](auto &e) { 
+            *jpp::serialize(it, e) = separator; });
 
+        *jpp::serialize(it, *end) = std::get<2>(chars);
 
         return it;
     }
