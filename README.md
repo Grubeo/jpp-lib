@@ -11,6 +11,11 @@ This library is **under development** so coding style, file structure and everyt
 ## Running unit tests
 Just run make_tests.js script in [nodejs](https://nodejs.org/en/) and then jpp-test executable. That will build all modules to *.o files and run unit tests.
 
+Useful command for test running:
+```bash
+clear && node make_tests.js && ./jpp-test -x -p
+```
+
 ## Requiments
 * c++ compiler supporting C++17 (std::variant for example)
 * optional: nodejs and Boost.Test for unit testing

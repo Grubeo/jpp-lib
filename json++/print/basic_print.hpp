@@ -118,6 +118,9 @@ namespace jpp
     template<typename OutputIterator>
     OutputIterator serialize_array(OutputIterator it, const jpp::array_type &array)
     {
+        if constexpr (details::has_iter_traits<OutputIterator>)
+            static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
+            
         const auto end = std::prev(std::end(array));
 
         constexpr const auto chars = [] {
@@ -144,6 +147,9 @@ namespace jpp
     template<typename OutputIterator>
     OutputIterator serialize_object(OutputIterator output, const jpp::object_type &object)
     {
+        if constexpr (details::has_iter_traits<OutputIterator>)
+            static_assert(details::is_output_iterator<OutputIterator>, "Passed iterator must be output iterator!");
+
         const auto end = std::prev(std::end(object));
 
         constexpr const auto chars = [] {
